@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>教学视频详情页</title>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <!-- 样式 -->
+    <link rel="stylesheet" href="../../css/style.css"/>
+    <!-- 主题（主要颜色设置） -->
+    <link rel="stylesheet" href="../../css/theme.css"/>
+    <!-- 通用的css -->
+    <link rel="stylesheet" href="../../css/common.css"/>
+    <link rel="stylesheet" href="../../xznstatic/css/bootstrap.min.css">
+</head>
+<style>
+    .particulars {
+        width: 90%;
+        background-color: #fff;
+        border-bottom: 1px dotted var(--publicMainColor);
+        padding: 10px 0;
+    }
+
+    .dataExhibition {
+        display: inline-block;
+        width: 60%;
+    }
+
+    .displayBianhao {
+        display: inline-block;
+        width: 20%;
+    }
+
+    .detail-tab .layui-tab-card>.layui-tab-title .layui-this{
+        border: 2px dotted var(--publicMainColor);
+        background-color: #fff;
+        color: #000;
+    }</style>
+<body>
+
+    <div id="app">
+<div style="width: 1000px;margin: 10px auto;height: auto;">
+    <div style="border: 1px  dotted var(--publicMainColor);border-radius: 15px;margin-top:25px;height: 50px;line-height: 50px;padding-left: 15px;display: flex;justify-content: space-between;align-items: center;padding-right: 15px;">
+        <span>
+            <a style="color: #000;" href="../home/home.html">
+                首页
+            </a>/
+            <a>
+                <cite style="color: #815476;">
+                    {{title}}
+                </cite>
+            </a>
+        </span>
+    </div>
+    <div style="display: flex;margin-top: 20px;">
+        <!-- 详情介绍 -->
+        <div style="width: 50%;height: auto;">
+            <div class="particulars" style="text-align: center;font-size: 18px;">
+                <span>{{title}}</span>
+            </div>
+                  <div @click="jump(baseUrl+detail.jiaoxueshipinFile)" class="particulars">
+                      <span class="displayBianhao">教学资料:</span>
+                      <span class="dataExhibition"> 教学资料下载 </span>
+                  </div>
+                  <div v-if="detail.jiaoxueshipinTypes" class="particulars">
+                      <span class="displayBianhao">教学视频类型:</span>
+                      <span class="dataExhibition"> {{detail.jiaoxueshipinValue}} </span>
+                  </div>
+        </div>
+        <!-- 图片 -->
+        <div style="width: 50%;height: auto;">
+            <div>
+                <div v-if="swiperList.length" v-for="(item,index) in swiperList" :key="index">
+                    <img style="width: 100%;height: 100%;object-fit:cover;" :src="baseUrl+item" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 按钮 -->
+    <div style="width: 100%;">
+        <div  style="display: flex;margin-top: 30px;justify-content: center;border-bottom:1px dotted var(--publicMainColor) ;border-top:1px dotted var(--publicMainColor) ;padding: 20px;align-items: center;">
+            <!--
+             <button @click="jiaoxueshipinYuyue()" style="height:auto;" :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0 5px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(23, 124, 176, 1)","color":"rgba(255, 255, 255, 1)","borderRadius":"6px","borderWidth":"0","width":"auto","lineHeight":"40px","fontSize":"16px","borderStyle":"solid"}' type="button" class="layui-btn btn-submit">
+                 立即预约
+             </button>
+        -->
+        </div>
+    </div>
+
+    <!-- 视频 -->
+    <div style="border: 1px dotted var(--publicMainColor);">
+        <video :style='{"width":"100%","margin":"5px auto","borderRadius":"00px","display":"block"}'
+               style="width: 100%;" :src="baseUrl+detail.jiaoxueshipinVideo" controls="controls">
+            您的浏览器不支持视频播放
+        </video>
+    </div>
+
+
+    <!-- 评论 -->
+    <div class="layui-row detail-tab" style="border: none;box-shadow: none;">
+        <div class="layui-tab layui-tab-card "
+
+             style="overflow: hidden;border: none; box-shadow: none;">
+            <ul class="layui-tab-title " :style='{"backgroundColor":"#fff","fontSize":"14px"}' style="color: var(--publicMainColor);border: none;">
+                <li class="layui-this">教学视频详情</li>
+                <li></li>
+            </ul>
+
+            <div class="layui-tab-content" style="border: 1px dotted var(--publicMainColor);border-radius: 15px;margin-top: 10px;margin-bottom: 50px;">
+                <div class="layui-tab-item layui-show">
+                    <div v-html="myFilters(detail.jiaoxueshipinContent)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    </div>
+
+
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/vue.js"></script>
+    <!-- 引入element组件库 -->
+    <script src="../../xznstatic/js/element.min.js"></script>
+    <!-- 引入element样式 -->
+    <link rel="stylesheet" href="../../xznstatic/css/element.min.css">
+    <!-- 组件配置信息 -->
+    <script src="../../js/config.js"></script>
+    <!-- 扩展插件配置信息 -->
+    <script src="../../modules/config.js"></script>
+    <!-- 工具方法 -->
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        Vue.prototype.myFilters= function (msg) {
+            if(msg != null){
+                return msg.replace(/\n/g, "<br>");
+            }else{
+                return "";
+            }
+        };
+        var vue = new Vue({
+            el: '#app',
+            data: {
+                // 轮播图
+                swiperList: [],//用于当前表的图片
+                // 数据详情
+                detail: {
+                    id: 0
+                },
+                // 商品标题
+                title: '',
+                totalScore: 0,//评分
+                baseUrl:"",//路径
+                storeupFlag: 0,//收藏 [0为收藏 1已收藏]
+                //系统推荐
+                jiaoxueshipinRecommendList: [],
+                    // 当前详情页表
+                detailTable: 'jiaoxueshipin',
+            },
+            methods: {
+                //分享
+                share(){
+                    localStorage.setItem("goUtl","./pages/要去的路径/detail.html?id="+2);
+                    top.location.href = '../../index.html'
+                },
+                jump(url) {
+                    jump(url)
+                },
+                isAuth(tablename, button) {
+                    return isFrontAuth(tablename, button)
+                },
+                //预约
+                jiaoxueshipinYuyue(){
+                    let _this = this;
+                    // localStorage.setItem('jiaoxueshipinId', _this.detail.id);
+                    // _this.jump("../jiaoxueshipinOrder/add.html");
+
+                    let data={
+                        jiaoxueshipinId:_this.detail.id,
+                        yonghuId:localStorage.getItem("userid"),
+                        jiaoxueshipinOrderYesnoTypes:1,
+                    }
+                    // 提交数据
+                    layui.http.requestJson('jiaoxueshipinOrder/add', 'post', data, function (res) {
+                        if(res.code == 0) {
+                            layui.layer.msg('预约成功', {
+                                time: 2000,
+                                icon: 6
+                            }, function () {
+                                _this.jump("../jiaoxueshipinOrder/list.html");
+                            });
+                        }else{
+                            layui.layer.msg(res.msg, {
+                                time: 5000,
+                                icon: 5
+                            });
+                        }
+                    });
+                },
+
+                }
+        });
+
+        layui.use(['layer', 'form', 'element', 'carousel', 'http', 'jquery', 'laypage', 'util'], function () {
+            var layer = layui.layer;
+            var util = layui.util;
+            var element = layui.element;
+            var form = layui.form;
+            var carousel = layui.carousel;
+            var http = layui.http;
+            var jquery = layui.jquery;
+            var laypage = layui.laypage;
+            vue.baseUrl = http.baseurl
+
+            localStorage.setItem("goUtl","./pages/jiaoxueshipin/detail.html?id="+ http.getParam('id'))
+
+            var limit = 10;
+
+            // 数据ID
+            var id = http.getParam('id');
+            vue.detail.id = id;
+            // 数据信息
+            http.request(`${vue.detailTable}/detail/` + id, 'get', {}, function (res) {
+                // 详情信息
+                vue.detail = res.data;
+                vue.title = vue.detail.jiaoxueshipinName;
+                vue.detail.jiaoxueshipinContent = vue.detail.jiaoxueshipinContent.replaceAll("src=\"upload/","src=\""+vue.baseUrl+"upload/");
+                // 轮播图片
+                vue.swiperList = vue.detail.jiaoxueshipinPhoto ? vue.detail.jiaoxueshipinPhoto.split(",") : [];
+                // 轮播图
+                vue.$nextTick(() => {
+                    carousel.render({
+                        elem: '#swiper',
+                        width: '420px',
+                        height: '400px',
+                        arrow: 'hover',
+                        anim: 'default',
+                        autoplay: 'true',
+                        interval: '3000',
+                        indicator: 'inside'
+                    });
+                });
+
+            });
+
+
+            // 系统推荐
+            http.request(`jiaoxueshipin/list`, 'get', {
+                page: 1,
+                limit: 5,
+                jiaoxueshipinTypes: vue.detail.jiaoxueshipinTypes,
+                jiaoxueshipinDelete: 1,
+            }, function (res) {
+                vue.jiaoxueshipinRecommendList = res.data.list;
+            });
+
+        });
+    </script>
+</body>
+</html>

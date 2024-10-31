@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiaoxueshipinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jiaoxueshipin_name as jiaoxueshipinName
+        ,a.jiaoxueshipin_photo as jiaoxueshipinPhoto
+        ,a.jiaoxueshipin_video as jiaoxueshipinVideo
+        ,a.jiaoxueshipin_file as jiaoxueshipinFile
+        ,a.jiaoxueshipin_types as jiaoxueshipinTypes
+        ,a.jiaoshi_id as jiaoshiId
+        ,a.jiaoxueshipin_delete as jiaoxueshipinDelete
+        ,a.jiaoxueshipin_content as jiaoxueshipinContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiaoxueshipinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,jiaoshi.jiaoshi_name as jiaoshiName
+        ,jiaoshi.jiaoshi_photo as jiaoshiPhoto
+        ,jiaoshi.jiaoshi_id_number as jiaoshiIdNumber
+        ,jiaoshi.jiaoshi_phone as jiaoshiPhone
+        ,jiaoshi.jiaoshi_email as jiaoshiEmail
+        ,jiaoshi.jiaoshi_delete as jiaoshiDelete
+
+        FROM jiaoxueshipin  a
+        left JOIN jiaoshi jiaoshi ON a.jiaoshi_id = jiaoshi.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.jiaoxueshipinName != '' and params.jiaoxueshipinName != null and params.jiaoxueshipinName != 'null' ">
+                and a.jiaoxueshipin_name like CONCAT('%',#{params.jiaoxueshipinName},'%')
+            </if>
+            <if test=" params.jiaoxueshipinVideo != '' and params.jiaoxueshipinVideo != null and params.jiaoxueshipinVideo != 'null' ">
+                and a.jiaoxueshipin_video like CONCAT('%',#{params.jiaoxueshipinVideo},'%')
+            </if>
+            <if test="params.jiaoxueshipinTypes != null and params.jiaoxueshipinTypes != ''">
+                and a.jiaoxueshipin_types = #{params.jiaoxueshipinTypes}
+            </if>
+            <if test="params.jiaoshiId != null and params.jiaoshiId != ''">
+                and (
+                    a.jiaoshi_id = #{params.jiaoshiId}
+                )
+            </if>
+            <if test="params.jiaoxueshipinDeleteStart != null and params.jiaoxueshipinDeleteStart != ''">
+                <![CDATA[  and a.jiaoxueshipin_delete >= #{params.jiaoxueshipinDeleteStart}   ]]>
+            </if>
+            <if test="params.jiaoxueshipinDeleteEnd != null and params.jiaoxueshipinDeleteEnd != ''">
+                <![CDATA[  and a.jiaoxueshipin_delete <= #{params.jiaoxueshipinDeleteEnd}   ]]>
+            </if>
+             <if test="params.jiaoxueshipinDelete != null and params.jiaoxueshipinDelete != ''">
+                and a.jiaoxueshipin_delete = #{params.jiaoxueshipinDelete}
+             </if>
+            <if test=" params.jiaoxueshipinContent != '' and params.jiaoxueshipinContent != null and params.jiaoxueshipinContent != 'null' ">
+                and a.jiaoxueshipin_content like CONCAT('%',#{params.jiaoxueshipinContent},'%')
+            </if>
+
+                <!-- 判断教师的id不为空 -->
+            <if test=" params.jiaoshiIdNotNull != '' and params.jiaoshiIdNotNull != null and params.jiaoshiIdNotNull != 'null' ">
+                and a.jiaoshi_id IS NOT NULL
+            </if>
+            <if test=" params.jiaoshiName != '' and params.jiaoshiName != null and params.jiaoshiName != 'null' ">
+                and jiaoshi.jiaoshi_name like CONCAT('%',#{params.jiaoshiName},'%')
+            </if>
+            <if test=" params.jiaoshiIdNumber != '' and params.jiaoshiIdNumber != null and params.jiaoshiIdNumber != 'null' ">
+                and jiaoshi.jiaoshi_id_number like CONCAT('%',#{params.jiaoshiIdNumber},'%')
+            </if>
+            <if test=" params.jiaoshiPhone != '' and params.jiaoshiPhone != null and params.jiaoshiPhone != 'null' ">
+                and jiaoshi.jiaoshi_phone like CONCAT('%',#{params.jiaoshiPhone},'%')
+            </if>
+            <if test=" params.jiaoshiEmail != '' and params.jiaoshiEmail != null and params.jiaoshiEmail != 'null' ">
+                and jiaoshi.jiaoshi_email like CONCAT('%',#{params.jiaoshiEmail},'%')
+            </if>
+            <if test="params.jiaoshiDeleteStart != null  and params.jiaoshiDeleteStart != '' ">
+                <![CDATA[  and jiaoshi.jiaoshi_delete >= #{params.jiaoshiDeleteStart}   ]]>
+            </if>
+            <if test="params.jiaoshiDeleteEnd != null  and params.jiaoshiDeleteEnd != '' ">
+                <![CDATA[  and jiaoshi.jiaoshi_delete <= #{params.jiaoshiDeleteEnd}   ]]>
+            </if>
+            <if test="params.jiaoshiDelete != null  and params.jiaoshiDelete != '' ">
+                and jiaoshi.jiaoshi_delete = #{params.jiaoshiDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

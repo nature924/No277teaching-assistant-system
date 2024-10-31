@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZuoyetijiaoDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zuoye_id as zuoyeId
+        ,a.yonghu_id as yonghuId
+        ,a.zuoyetijiao_file as zuoyetijiaoFile
+        ,a.zuoyetijiao_types as zuoyetijiaoTypes
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZuoyetijiaoView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.banji_types as banjiTypes
+        ,yonghu.yonghu_delete as yonghuDelete
+        ,zuoye.zuoye_name as zuoyeName
+        ,zuoye.zuoye_photo as zuoyePhoto
+        ,zuoye.zuoye_types as zuoyeTypes
+        ,zuoye.zuoye_file as zuoyeFile
+        ,zuoye.jiaoshi_id as zuoyeJiaoshiId
+        ,zuoye.banji_types as banjiTypes
+        ,zuoye.zuoye_content as zuoyeContent
+        ,zuoye.zuoye_delete as zuoyeDelete
+
+        FROM zuoyetijiao  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        left JOIN zuoye zuoye ON a.zuoye_id = zuoye.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zuoyeId != null and params.zuoyeId != ''">
+                and (
+                    a.zuoye_id = #{params.zuoyeId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.zuoyetijiaoTypes != null and params.zuoyetijiaoTypes != ''">
+                and a.zuoyetijiao_types = #{params.zuoyetijiaoTypes}
+            </if>
+
+                <!-- 判断学生的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.banjiTypes != null  and params.banjiTypes != ''">
+                and yonghu.banji_types = #{params.banjiTypes}
+            </if>
+
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+                <!-- 判断作业的id不为空 -->
+            <if test=" params.zuoyeIdNotNull != '' and params.zuoyeIdNotNull != null and params.zuoyeIdNotNull != 'null' ">
+                and a.zuoye_id IS NOT NULL
+            </if>
+            <if test=" params.zuoyeName != '' and params.zuoyeName != null and params.zuoyeName != 'null' ">
+                and zuoye.zuoye_name like CONCAT('%',#{params.zuoyeName},'%')
+            </if>
+            <if test="params.zuoyeTypes != null  and params.zuoyeTypes != ''">
+                and zuoye.zuoye_types = #{params.zuoyeTypes}
+            </if>
+
+            <if test="params.jiaoshiId != null  and params.jiaoshiId != ''">
+                and zuoye.jiaoshi_id = #{params.jiaoshiId}
+            </if>
+            <if test="params.banjiTypes != null  and params.banjiTypes != ''">
+                and zuoye.banji_types = #{params.banjiTypes}
+            </if>
+
+            <if test=" params.zuoyeContent != '' and params.zuoyeContent != null and params.zuoyeContent != 'null' ">
+                and zuoye.zuoye_content like CONCAT('%',#{params.zuoyeContent},'%')
+            </if>
+            <if test="params.zuoyeDeleteStart != null  and params.zuoyeDeleteStart != '' ">
+                <![CDATA[  and zuoye.zuoye_delete >= #{params.zuoyeDeleteStart}   ]]>
+            </if>
+            <if test="params.zuoyeDeleteEnd != null  and params.zuoyeDeleteEnd != '' ">
+                <![CDATA[  and zuoye.zuoye_delete <= #{params.zuoyeDeleteEnd}   ]]>
+            </if>
+            <if test="params.zuoyeDelete != null  and params.zuoyeDelete != '' ">
+                and zuoye.zuoye_delete = #{params.zuoyeDelete}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zuoye.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zuoye.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
